@@ -32,15 +32,17 @@ import java.util.Locale
 @Composable
 fun CameraScreen(onPhotoTaken: () -> Unit) {
     val context = LocalContext.current
+    val appState = remember { AppState.getInstance() }
     val photoUri = remember {
-        val dir = File(context.cacheDir, "receipts").apply { mkdirs() }
+        val dir = File(context.cacheDir, "receipts")
+        dir.mkdirs()
         Uri.fromFile(File(dir, "receipt_${SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())}.jpg"))
     }
-    AppState.pendingReceiptUri = photoUri
+    appState.setPendingReceiptUri(photoUri)
 
     val takePicture = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success ->
         if (success) {
-            AppState.setLastReceiptUri()
+            appState.setLastReceiptUri()
             onPhotoTaken()
         }
     }

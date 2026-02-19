@@ -36,7 +36,8 @@ import com.example.finances.data.AppState
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(onBack: () -> Unit, onLogout: () -> Unit, onOpenUserManagement: () -> Unit) {
-    val user = AppState.currentUser
+    val appState = remember { AppState.getInstance() }
+    val user = appState.getCurrentUser()
     var showLogoutDialog by remember { mutableStateOf(false) }
 
     Scaffold(
@@ -70,14 +71,14 @@ fun SettingsScreen(onBack: () -> Unit, onLogout: () -> Unit, onOpenUserManagemen
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     user?.let {
-                        Text("${stringResource(R.string.employee)}: ${it.name}", fontSize = 16.sp)
-                        Text("${stringResource(R.string.department)}: ${it.department}", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        Text("${stringResource(R.string.personnel_number)}: ${it.personnelNumber}", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text("${stringResource(R.string.employee)}: ${it.getName()}", fontSize = 16.sp)
+                        Text("${stringResource(R.string.department)}: ${it.getDepartment()}", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text("${stringResource(R.string.personnel_number)}: ${it.getPersonnelNumber()}", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             }
             Spacer(modifier = Modifier.height(16.dp))
-            if (user?.isAdmin == true) {
+            if (user?.isAdmin() == true) {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
@@ -163,7 +164,7 @@ fun SettingsScreen(onBack: () -> Unit, onLogout: () -> Unit, onOpenUserManagemen
             confirmButton = {
                 TextButton(
                     onClick = {
-                        AppState.logout()
+                        appState.logout()
                         showLogoutDialog = false
                         onLogout()
                     }

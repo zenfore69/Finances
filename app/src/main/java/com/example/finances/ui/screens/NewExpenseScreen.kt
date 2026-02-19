@@ -49,9 +49,10 @@ fun NewExpenseScreen(
     onOpenCamera: () -> Unit,
     onSentTo1C: () -> Unit
 ) {
+    val appState = remember { AppState.getInstance() }
     var amount by remember { mutableStateOf("") }
     var category by remember { mutableStateOf("") }
-    val receiptUri = AppState.lastReceiptUri
+    val receiptUri = appState.getLastReceiptUri()
 
     Scaffold(
         topBar = {
@@ -135,18 +136,18 @@ fun NewExpenseScreen(
                     val amountValue = amount.replace(',', '.').toDoubleOrNull() ?: 0.0
                     if (amountValue > 0 && category.isNotBlank()) {
                         val date = SimpleDateFormat("dd.MM", Locale.getDefault()).format(Date())
-                        AppState.addExpense(
+                        appState.addExpense(
                             Expense(
-                                id = AppState.nextExpenseId(),
-                                date = date,
-                                description = category,
-                                amountRub = amountValue,
-                                status = ExpenseStatus.UNDER_REVIEW,
-                                category = category,
-                                receiptImageUri = receiptUri
+                                appState.nextExpenseId(),
+                                date,
+                                category,
+                                amountValue,
+                                ExpenseStatus.UNDER_REVIEW,
+                                category,
+                                receiptUri
                             )
                         )
-                        AppState.clearLastReceipt()
+                        appState.clearLastReceipt()
                         onSentTo1C()
                     }
                 },

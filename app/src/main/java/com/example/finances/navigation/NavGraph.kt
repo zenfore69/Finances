@@ -16,6 +16,7 @@ import com.example.finances.ui.screens.NewExpenseScreen
 import com.example.finances.ui.screens.SettingsScreen
 import com.example.finances.ui.screens.StatisticsScreen
 import com.example.finances.ui.screens.UserManagementScreen
+import com.example.finances.ui.screens.ApprovalsScreen
 
 object Routes {
     const val LOGIN = "login"
@@ -27,6 +28,7 @@ object Routes {
     const val SETTINGS = "settings"
     const val USERS = "users"
     const val STATISTICS = "statistics"
+    const val APPROVALS = "approvals"
 
     fun expenseDetail(expenseId: Long) = "expense_detail/$expenseId"
 }
@@ -47,7 +49,8 @@ fun AppNavGraph(navController: NavHostController) {
                 onNewExpense = { navController.navigate(Routes.NEW_EXPENSE) },
                 onReportHistory = { navController.navigate(Routes.EXPENSE_LIST) },
                 onStatistics = { navController.navigate(Routes.STATISTICS) },
-                onSettings = { navController.navigate(Routes.SETTINGS) }
+                onSettings = { navController.navigate(Routes.SETTINGS) },
+                onApprovals = { navController.navigate(Routes.APPROVALS) }
             )
         }
         composable(Routes.EXPENSE_LIST) {
@@ -61,7 +64,8 @@ fun AppNavGraph(navController: NavHostController) {
             arguments = listOf(navArgument("expenseId") { type = NavType.LongType })
         ) { backStackEntry ->
             val expenseId = backStackEntry.arguments?.getLong("expenseId") ?: 0L
-            val expense = AppState.expenses.find { it.id == expenseId }
+            val appState = AppState.getInstance()
+            val expense = appState.getExpenses().find { it.getId() == expenseId }
             ExpenseDetailScreen(
                 expense = expense,
                 onBack = { navController.popBackStack() },
@@ -90,6 +94,9 @@ fun AppNavGraph(navController: NavHostController) {
         }
         composable(Routes.CAMERA) {
             CameraScreen(onPhotoTaken = { navController.popBackStack() })
+        }
+        composable(Routes.APPROVALS) {
+            ApprovalsScreen(onBack = { navController.popBackStack() })
         }
     }
 }

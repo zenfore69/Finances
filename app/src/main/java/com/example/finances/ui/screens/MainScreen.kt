@@ -21,6 +21,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -28,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.finances.R
 import com.example.finances.data.AppState
+import androidx.compose.material3.MaterialTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,9 +37,12 @@ fun MainScreen(
     onNewExpense: () -> Unit,
     onReportHistory: () -> Unit,
     onStatistics: () -> Unit,
-    onSettings: () -> Unit
+    onSettings: () -> Unit,
+    onApprovals: () -> Unit
 ) {
-    val user = AppState.currentUser ?: return
+    val appState = remember { AppState.getInstance() }
+    val user = appState.getCurrentUser()
+    if (user == null) return
 
     Scaffold(
         topBar = {
@@ -58,12 +63,12 @@ fun MainScreen(
                 .padding(24.dp)
         ) {
             Text(
-            text = "${stringResource(R.string.employee)}: ${user.name}",
+            text = "${stringResource(R.string.employee)}: ${user.getName()}",
             fontSize = 18.sp,
             fontWeight = FontWeight.Medium
         )
         Text(
-            text = user.department,
+            text = user.getDepartment(),
             fontSize = 16.sp,
             color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -99,6 +104,19 @@ fun MainScreen(
                 shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
             ) {
                 Text(stringResource(R.string.statistics).uppercase(), fontWeight = FontWeight.SemiBold)
+            }
+            if (user.isApprover()) {
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(
+                    onClick = onApprovals,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(52.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary),
+                    shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
+                ) {
+                    Text(stringResource(R.string.approvals).uppercase(), fontWeight = FontWeight.SemiBold)
+                }
             }
         }
     }

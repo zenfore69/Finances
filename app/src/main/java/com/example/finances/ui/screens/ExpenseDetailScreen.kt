@@ -42,6 +42,7 @@ fun ExpenseDetailScreen(
     onBack: () -> Unit,
     onDeleted: () -> Unit
 ) {
+    val appState = remember { AppState.getInstance() }
     var showDeleteDialog by remember { mutableStateOf(false) }
     Scaffold(
         topBar = {
@@ -70,10 +71,10 @@ fun ExpenseDetailScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(24.dp)
         ) {
-            DetailRow(stringResource(R.string.date_short), expense.date)
-            DetailRow(stringResource(R.string.description), expense.description)
-            DetailRow(stringResource(R.string.category), expense.category)
-            DetailRow(stringResource(R.string.amount), "%,.0f руб.".format(expense.amountRub).replace(',', ' '))
+            DetailRow(stringResource(R.string.date_short), expense.getDate())
+            DetailRow(stringResource(R.string.description), expense.getDescription())
+            DetailRow(stringResource(R.string.category), expense.getCategory())
+            DetailRow(stringResource(R.string.amount), "%,.0f руб.".format(expense.getAmountRub()).replace(',', ' '))
             Spacer(modifier = Modifier.padding(8.dp))
             Text(
                 text = stringResource(R.string.status),
@@ -81,16 +82,16 @@ fun ExpenseDetailScreen(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
-                text = expense.status.displayName,
+                text = expense.getStatus().getDisplayName(),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = when (expense.status) {
+                color = when (expense.getStatus()) {
                     ExpenseStatus.APPROVED -> MaterialTheme.colorScheme.primary
                     ExpenseStatus.UNDER_REVIEW -> MaterialTheme.colorScheme.tertiary
                     else -> MaterialTheme.colorScheme.error
                 }
             )
-            if (expense.receiptImageUri != null) {
+            if (expense.getReceiptImageUri() != null) {
                 Spacer(modifier = Modifier.padding(16.dp))
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -121,7 +122,7 @@ fun ExpenseDetailScreen(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        AppState.removeExpense(expense.id)
+                        appState.removeExpense(expense.getId())
                         showDeleteDialog = false
                         onDeleted()
                     }

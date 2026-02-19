@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.finances.R
 import com.example.finances.data.AppState
+import androidx.compose.runtime.getValue
 import com.example.finances.ui.theme.AgroGreen
 
 @Composable
@@ -77,7 +78,7 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
         Spacer(modifier = Modifier.height(32.dp))
         Button(
             onClick = {
-                if (AppState.login(personnelNumber, password)) {
+                if (AppState.getInstance().login(personnelNumber, password)) {
                     onLoginSuccess()
                 } else {
                     error = "Введите табельный номер и пароль"

@@ -41,8 +41,9 @@ import com.example.finances.data.User
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserManagementScreen(onBack: () -> Unit) {
-    val current = AppState.currentUser
-    if (current?.isAdmin != true) {
+    val appState = remember { AppState.getInstance() }
+    val current = appState.getCurrentUser()
+    if (current?.isAdmin() != true) {
         Scaffold(
             topBar = {
                 TopAppBar(
@@ -76,9 +77,10 @@ fun UserManagementScreen(onBack: () -> Unit) {
     var department by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var isAdmin by remember { mutableStateOf(false) }
+    var isApprover by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
 
-    val users = AppState.allUsers()
+    val users = appState.allUsers()
 
     Scaffold(
         topBar = {
@@ -142,6 +144,13 @@ fun UserManagementScreen(onBack: () -> Unit) {
                 Checkbox(checked = isAdmin, onCheckedChange = { isAdmin = it })
                 Text(text = stringResource(R.string.is_admin))
             }
+            Row(
+                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+                modifier = Modifier.padding(top = 4.dp)
+            ) {
+                Checkbox(checked = isApprover, onCheckedChange = { isApprover = it })
+                Text(text = "Согласующий")
+            }
             error?.let {
                 Text(
                     text = it,
@@ -152,12 +161,13 @@ fun UserManagementScreen(onBack: () -> Unit) {
             Spacer(modifier = Modifier.height(12.dp))
             Button(
                 onClick = {
-                    val ok = AppState.registerUser(
-                        personnelNumber = personnelNumber.trim(),
-                        name = name.trim(),
-                        department = department.trim(),
-                        password = password,
-                        isAdmin = isAdmin
+                    val ok = appState.registerUser(
+                        personnelNumber.trim(),
+                        name.trim(),
+                        department.trim(),
+                        password,
+                        isAdmin,
+                        isApprover
                     )
                     if (ok) {
                         personnelNumber = ""
@@ -165,6 +175,7 @@ fun UserManagementScreen(onBack: () -> Unit) {
                         department = ""
                         password = ""
                         isAdmin = false
+                        isApprover = false
                         error = null
                     } else {
                         error = "Не удалось создать пользователя. Проверьте уникальность табельного номера и заполнение полей."
@@ -203,19 +214,26 @@ private fun UserItem(user: User) {
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
             Text(
-                text = "${user.name} (${user.personnelNumber})",
+                text = "${user.getName()} (${user.getPersonnelNumber()})",
                 fontWeight = FontWeight.Medium
             )
             Text(
-                text = user.department,
+                text = user.getDepartment(),
                 fontSize = 13.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            if (user.isAdmin) {
+            if (user.isAdmin()) {
                 Text(
                     text = stringResource(R.string.admin_label),
                     fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.primary
+                )
+            }
+            if (user.isApprover()) {
+                Text(
+                    text = "Согласующий",
+                    fontSize = 12.sp,
+                    color = MaterialTheme.colorScheme.tertiary
                 )
             }
         }

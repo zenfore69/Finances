@@ -20,6 +20,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -32,11 +33,12 @@ import com.example.finances.data.ExpenseStatus
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StatisticsScreen(onBack: () -> Unit) {
-    val expenses = AppState.expenses
-    val total = expenses.sumOf { it.amountRub }
-    val approved = expenses.filter { it.status == ExpenseStatus.APPROVED }.sumOf { it.amountRub }
-    val pending = expenses.filter { it.status == ExpenseStatus.UNDER_REVIEW }.sumOf { it.amountRub }
-    val byCategory = expenses.groupBy { it.category }.mapValues { (_, list) -> list.sumOf { it.amountRub } }.toList().sortedByDescending { it.second }
+    val appState = remember { AppState.getInstance() }
+    val expenses = appState.getExpenses()
+    val total = expenses.sumOf { it.getAmountRub() }
+    val approved = expenses.filter { it.getStatus() == ExpenseStatus.APPROVED }.sumOf { it.getAmountRub() }
+    val pending = expenses.filter { it.getStatus() == ExpenseStatus.UNDER_REVIEW }.sumOf { it.getAmountRub() }
+    val byCategory = expenses.groupBy { it.getCategory() }.mapValues { (_, list) -> list.sumOf { it.getAmountRub() } }.toList().sortedByDescending { it.second }
 
     Scaffold(
         topBar = {

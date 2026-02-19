@@ -63,4 +63,9 @@
     <string name="user_create_error">Не удалось создать пользователя. Проверьте уникальность табельного номера и заполнение полей.</string>
     <string name="admin_label">Администратор</string>
     <string name="admin_only">Доступно только администратору.</string>
+    <string name="approvals">Согласование</string>
+    <string name="approver_only">Доступно только согласующему.</string>
+    <string name="no_pending_expenses">Нет расходов на согласовании</string>
+    <string name="approve">Одобрить</string>
+    <string name="reject">Отклонить</string>
 </resources>

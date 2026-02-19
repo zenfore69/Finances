@@ -51,7 +51,8 @@ enum class ExpenseSort { DATE_DESC, DATE_ASC, AMOUNT_DESC, AMOUNT_ASC }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExpenseListScreen(onBack: () -> Unit, onExpenseClick: (Long) -> Unit) {
-    val expenses = AppState.expenses
+    val appState = remember { AppState.getInstance() }
+    val expenses = appState.getExpenses()
     var searchQuery by remember { mutableStateOf("") }
     var filter by remember { mutableStateOf(ExpenseFilter.ALL) }
     var sort by remember { mutableStateOf(ExpenseSort.DATE_DESC) }
@@ -61,19 +62,19 @@ fun ExpenseListScreen(onBack: () -> Unit, onExpenseClick: (Long) -> Unit) {
             var list = expenses.filter { expense ->
                 val matchesFilter = when (filter) {
                     ExpenseFilter.ALL -> true
-                    ExpenseFilter.APPROVED -> expense.status == ExpenseStatus.APPROVED
-                    ExpenseFilter.UNDER_REVIEW -> expense.status == ExpenseStatus.UNDER_REVIEW
+                    ExpenseFilter.APPROVED -> expense.getStatus() == ExpenseStatus.APPROVED
+                    ExpenseFilter.UNDER_REVIEW -> expense.getStatus() == ExpenseStatus.UNDER_REVIEW
                 }
                 val matchesSearch = searchQuery.isBlank() ||
-                    expense.description.contains(searchQuery, ignoreCase = true) ||
-                    expense.category.contains(searchQuery, ignoreCase = true)
+                    expense.getDescription().contains(searchQuery, ignoreCase = true) ||
+                    expense.getCategory().contains(searchQuery, ignoreCase = true)
                 matchesFilter && matchesSearch
             }
             list = when (sort) {
-                ExpenseSort.DATE_DESC -> list.sortedByDescending { parseDate(it.date) }
-                ExpenseSort.DATE_ASC -> list.sortedBy { parseDate(it.date) }
-                ExpenseSort.AMOUNT_DESC -> list.sortedByDescending { it.amountRub }
-                ExpenseSort.AMOUNT_ASC -> list.sortedBy { it.amountRub }
+                ExpenseSort.DATE_DESC -> list.sortedByDescending { parseDate(it.getDate()) }
+                ExpenseSort.DATE_ASC -> list.sortedBy { parseDate(it.getDate()) }
+                ExpenseSort.AMOUNT_DESC -> list.sortedByDescending { it.getAmountRub() }
+                ExpenseSort.AMOUNT_ASC -> list.sortedBy { it.getAmountRub() }
             }
             list
         }
@@ -203,20 +204,20 @@ private fun ExpenseItem(expense: Expense, onClick: () -> Unit) {
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = "${expense.date} | ${expense.description}",
+                text = "${expense.getDate()} | ${expense.getDescription()}",
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Medium
             )
             Text(
-                text = "${stringResource(R.string.amount)}: ${formatRub(expense.amountRub)}",
+                text = "${stringResource(R.string.amount)}: ${formatRub(expense.getAmountRub())}",
                 fontSize = 14.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
-                text = "${stringResource(R.string.status)}: [${expense.status.displayName}]",
+                text = "${stringResource(R.string.status)}: [${expense.getStatus().getDisplayName()}]",
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
-                color = when (expense.status) {
+                color = when (expense.getStatus()) {
                     ExpenseStatus.APPROVED -> MaterialTheme.colorScheme.primary
                     ExpenseStatus.UNDER_REVIEW -> MaterialTheme.colorScheme.tertiary
                     else -> MaterialTheme.colorScheme.error
